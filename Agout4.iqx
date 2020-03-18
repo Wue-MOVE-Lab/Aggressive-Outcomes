@@ -1,0 +1,1697 @@
+﻿Aggressive Outcomes Experiment 4
+Script programmed by Anand Krishna
+Last modified: 2020-03-11
+
+NOTE: AMP trials code positive responses as correct for ease of aggregation.
+
+
+<values>
+/ TaylorWaitTimeLowerBound = 500
+/ TaylorWaitTimeUpperBound = 800
+/ TaylorResponseTimeout = 1000
+/ TaylorFeedbackSoundOnset = 400
+/ AMPTimeLimit = 2000
+/ AMPFeedbackDuration = 4000
+/ AcquisitionTrialsPerBlock = 30
+/ TestTrialsTotalPerBlock = 27
+/ CatchTrialsPerTestBlock = 6
+/ NumberOfMiniblockPairs = 5
+/ TestPhaseTimeout = 10000
+/ TestPhaseFastFlickerMin = 200
+/ TestPhaseFastFlickerMax = 650
+/ TestPhaseFastFlickerModifier = -100
+/ TestPhaseFastFlickerModifierChance = .05
+/ TestPhaseSlowFlickerMin = 550
+/ TestPhaseSlowFlickerMax = 750
+/ TestPhaseErrorFeedbackDuration = 1000
+/ TestPhaseSelectionFeedbackOffset = 30
+/ ToneFeedbackLength = 2000
+/ TestPhaseFlickerPreTrialPause = 0
+/ WantDebriefing = 1
+/ MinimumInstructionReadTime = 500
+/ TaylorTimeout = 2000
+/ SkipAMPForTesting = false
+/ SkipAcquiBlocksForMonkey = false
+
+
+
+/ TaylorWaitTime = 0
+/ TaylorWinner = ""
+/ TaylorTarget = ""
+/ TaylorToneIntensity = ""
+/ AggressivePlayer = ""
+/ NonaggressivePlayer = ""
+/ PlayerASelecter = 0
+/ PlayerBSelecter = 0
+/ ChosenPlayerSelecter = 0
+/ PicturePositions = ""
+/ TrialCounter = 0
+/ BlockCounter = 0
+/ TimeoutCounter = 0
+/ SelectedPlayer = ""
+/ BorderLeftPosition = 12.5
+/ BorderRightPosition = 27.5
+/ BorderTopPosition = 20
+/ BorderBottomPosition = 20
+/ LastTestTrial = ""
+/ AMPKeyAssignment = ""
+/ AMPKeyAssignmentSelector = 0
+/ HorizontalPosition = 0
+/ ListNumber = ""
+/ AcquiInstrSelect = 1
+/ TestInstrSelect = 1
+/ CurrentSide = 0
+/ LatencyPrecedingResponse = ""
+/ NumPrecedingTimeouts = ""
+/ InvertedItem = ""
+/ Subscale = ""
+/ PrecedingTrial = ""
+/ StartingSide = ""
+/ FeedbackSelect = 0
+/ ChosenIntensity = ""
+/ i = 0
+/ TestTime = 0
+/ SelectedSide = ""
+/ TestPhaseFastFlickerInterval = 0
+/ TestPhaseSlowFlickerInterval = 500
+
+/ LowestSwitchTime = 1000
+</values>
+
+
+
+
+<monkey>
+/ latencydistribution = constant(10)
+/ percentcorrect = 100
+</monkey>
+
+
+<expressions>
+/ CurrentAcquisitionListItem = concat(concat("list.AcquisitionBlock",values.ListNumber),".nextvalue")
+/ CurrentAggressivePlayerListItem = concat(concat("list.AggrPlayerHits",values.ListNumber),".nextvalue")
+/ CurrentNonAggressivePlayerListItem = concat(concat("list.NonAggrPlayerHits",values.ListNumber),".nextvalue")
+</expressions>
+
+
+<expt Agout4>
+/ onexptbegin = [if (mod(script.subjectid,2) < 1) {values.AggressivePlayer = "Player A"; values.NonaggressivePlayer = "Player B"} else 
+{values.AggressivePlayer = "Player B"; values.NonaggressivePlayer = "Player A"}]
+/ onexptbegin = [if (mod(script.subjectid,4) < 2) {values.AMPKeyAssignment = "Positive Left"; values.AMPKeyAssignmentSelector = 1} else 
+{values.AMPKeyAssignment = "Positive Right"; values.AMPKeyAssignmentSelector = 2}]
+/ onexptbegin = [if (mod(script.subjectid,8) < 4) {values.PicturePositions = "Picture 1 left"; values.PlayerASelecter = 1; values.PlayerBSelecter = 2} else 
+{values.PicturePositions = "Picture 1 right"; values.PlayerASelecter = 2; values.PlayerBSelecter = 1}]
+/ onexptbegin = [if (monkey.monkeymode) {values.TaylorWaitTimeLowerBound = 20; values.TaylorWaitTimeUpperBound = 20; values.ToneFeedbackLength = 200; 
+values.MinimumInstructionReadTime = 0; trial.AMP.beginresponsetime = 0; values.TaylorFeedbackSoundOnset = 0}]
+/ onexptbegin = [if (values.SkipAMPForTesting) trial.AMP.trialduration = 0]
+/ blocks = [2 = Demos; 1 = NoiseTest; 3 = AcquisitionPhase; 4 = ARESK]
+</expt>
+
+<block NoiseTest>
+/ onblockbegin = [values.TaylorToneIntensity = 1]
+/ trials = [1 = NoiseTest1]
+/ recorddata = false
+</block>
+
+<trial NoiseTest1>
+/ stimulustimes = [0 = NoiseTest]
+/ validresponse = (" ")
+/ branch = [trial.NoiseTest2]
+</trial>
+
+<text NoiseTest>
+/ items = ("Im folgenden Experiment wirst du immer wieder Töne hören. Dazu müssen wir die Lautstärke der Töne testen.
+
+Setze bitte jetzt die Kopfhörer auf und drücke die LEERTASTE, um mit dem Lautstärkencheck anzufangen.")
+/ fontstyle = ("Verdana", 2.5%)
+/ size = (80%,80%)
+/ vjustify = center 
+</text>
+
+<trial NoiseTest2>
+/ stimulustimes = [0 = NoiseTest1; 100 = NoiseBlast]
+/ validresponse = (57,19)
+/ branch = [if (trial.NoiseTest2.response == 19) {text.NoiseTest1.resetselection(); values.TaylorToneIntensity = 1; trial.NoiseTest2}]
+/ branch = [if (values.TaylorToneIntensity == 1) {values.TaylorToneIntensity = 5; trial.NoiseTest2}]
+</trial>
+
+
+<text NoiseTest1>
+/ items = ("Dieser Ton ist der LEISESTE Ton, den du im Verlauf der Studie hören wirst. Er sollte noch klar zu hören sein.
+
+Wenn du diesen Ton nicht hören konntest, bitte informiere die Versuchsleitung.
+
+Wenn du diesen Ton hören konntest, drücke die LEERTASTE, um fortzufahren.",
+"Dieser Ton ist der LAUTESTE Ton, den du im Verlauf der Studie hören wirst. Er sollte unangenehm, aber nicht schmerzhaft sein.
+
+Wenn dieser Ton schmerzhaft für dich war, bitte informieren die Versuchsleitung.
+
+Wenn der Ton unangenehm, aber nicht schmerzhaft war, drücke die LEERTASTE, um fortzufahren.")
+/ fontstyle = ("Verdana", 2.5%)
+/ size = (80%,80%)
+/ vjustify = center 
+/ select = sequence
+</text>
+
+
+<block Demos>
+/ trials = [1 = DemoInstr; 2 = demographics; 3 = personalinfo; 4 = DemoSending]
+</block>
+
+<trial DemoInstr>
+/ stimulustimes = [0 = DemoInstr]
+/ validresponse = (" ")
+/ beginresponsetime = values.MinimumInstructionReadTime
+/ recorddata = false
+/ branch = [if (text.DemoInstr.currentindex < text.DemoInstr.itemcount) trial.DemoInstr]
+</trial>
+
+<text DemoInstr>
+/ items = ("Herzlich willkommen zu dieser Studie. Bitte setze JETZT deine Kopfhörer auf.
+
+In dieser Studie wollen wir strukturierte menschliche Interaktionen untersuchen, die asymmetrisch ablaufen. Das heißt, du wirst mit anderen Versuchsteilnehmer interagieren. Du wirst in deiner Interaktion mit diesen Versuchsteilnehmer andere Möglichkeiten und anderes Vorwissen haben als sie.
+
+Die Versuchsteilnehmer, mit denen du interagierst, sind in anderen Laboren. Sämtliche Interaktionen sind vollkommen anonym und du wirst diesen Versuchsteilnehmer im Rahmen des Versuchs nicht real begegnen.
+
+Weiter geht es mit der LEERTASTE.",
+"In diesem Versuch interessieren wir uns für das Interaktionsverhalten, wenn die Interaktionspartner unterschiedliches Wissen über die andere Person haben.
+
+Alle Personen in deinem Labor sind in der SELBST BESCHREIBEN/ANDERE SEHEN Gruppe.
+
+Du wirst also jetzt einige Informationen über dich selbst aufschreiben, die mit deinen Interaktionspartnern geteilt werden. Du wirst ihnen jedoch als anonymer Avatar dargestellt, sodass diese Informationen nach dem Versuch dir nicht zuordenbar sind. Deine Interaktionspartner schreiben dir jedoch keine Informationen über sich.
+
+Im Verlaufe des weiteren Versuchs wirst du Bilder von deinen Interaktionspartnern sehen. Sie werden jedoch von dir keine Bilder sehen.
+
+Zu den Fragen über dich geht es mit der LEERTASTE.")
+/ fontstyle = ("Verdana", 2.5%)
+/ size = (80%,80%)
+/ vjustify = center 
+/ select = sequence
+</text>
+
+
+
+<surveypage demographics>
+/ questions = [1=sex; 2=age]
+/ finishlabel = "Weiter"
+/ showbackbutton = false
+/ showquestionnumbers = false
+/ showpagenumbers = false
+/ itemspacing = 10px
+/ showmousecursor = true
+</surveypage>
+
+
+<textbox age>
+/ caption = "Wie alt bist du?"
+/ range = (18,80)
+/ required = true
+/ textboxsize = (5,5)
+/ position = (10,10)
+/ monkeyresponse = (18,19,20,21,22,23,24,25,26,27,28,29,30)
+</textbox>
+
+<radiobuttons sex>
+/ caption = "Gebe dein Geschlecht an"
+/ options = ("weiblich", "männlich")
+/ other = "anderes, und zwar: "
+/ responsefontstyle = ("Tahoma", 14pt, false, false, false)
+/ position = (10,30)
+/ monkeyresponse = ("weiblich", "männlich")
+</radiobuttons>
+
+
+<surveypage personalinfo>
+/ questions = [1=politics1; 2=politics2]
+/ finishlabel = "Weiter"
+/ showbackbutton = false
+/ showquestionnumbers = false
+/ showpagenumbers = false
+/ itemspacing = 10px
+/ showmousecursor = true
+</surveypage>
+
+
+<slider politics1>
+/ caption = "Wie würdest du dich hinsichtlich deiner WIRTSCHAFTLICHEN Einstellung charakterisieren?
+"
+/ increment = 1
+/ range = (1,7)
+/ position = (10,10)
+/ slidersize = (70%,5%)
+/ defaultresponse = 4
+/ labels = ("1=Sehr liberal","7=Sehr sozialistisch")
+</slider>
+
+<slider politics2>
+/ caption = "Wie würdest du dich hinsichtlich deiner SOZIALEN Einstellung charakterisieren?
+"
+/ increment = 1
+/ range = (1,7)
+/ position = (10,30)
+/ slidersize = (70%,5%)
+/ defaultresponse = 4
+/ labels = ("1=Sehr progressiv","7=Sehr konservativ")
+</slider>
+
+
+<trial DemoSending>
+/ stimulustimes = [0 = DemoSending, PlayerA, PlayerB]
+/ validresponse = (" ")
+/ beginresponsetime = values.MinimumInstructionReadTime
+/ recorddata = false
+</trial>
+
+<text DemoSending>
+/ items = ("Dies sind deine Interaktionspartner für diese Studie. Sie können dich nicht sehen, aber die Informationen, die du gerade über dich angegeben hast, werden ihnen gerade gezeigt.
+
+Das bedeutet, dass du weißt, wie deine Partner aussehen, sie aber von dir nur wissen, wie du dich selbst politisch einordnest.
+
+Drücke die Leertaste, um fortzufahren.")
+/ fontstyle = ("Verdana", 2.5%)
+/ size = (80%,80%)
+/ vjustify = center 
+/ select = sequence
+/ position = (50%,60%)
+</text>
+
+
+ <block AcquisitionPhase>
+/ onblockbegin = [trial.TaylorFeedback.insertstimulustime(text.Intensity, values.TaylorFeedbackSoundOnset); 
+trial.TaylorFeedback.insertstimulustime(video.SoundWave, values.TaylorFeedbackSoundOnset); 
+trial.TaylorFeedback.insertstimulustime(sound.NoiseBlast, values.TaylorFeedbackSoundOnset)]
+/ onblockbegin = [values.TrialCounter = 0; values.ListNumber = list.ListChooser.nextvalue; values.BlockCounter += 1]
+/ trials = [1 = AcquisitionInstr; 2 = likert.ChooseTarget]
+/ branch = [block.TestPhase]
+/ onblockend = [values.LatencyPrecedingResponse = ""; values.NumPrecedingTimeouts = ""; values.TaylorWinner = ""; values.TaylorTarget = ""]
+</block>
+
+<trial AcquisitionInstr>
+/ stimulustimes = [0 = AcquisitionInstr]
+/ validresponse = (" ")
+/ beginresponsetime = values.MinimumInstructionReadTime
+/ recorddata = false
+/ branch = [if (values.AcquiInstrSelect < 2) {values.AcquiInstrSelect += 1; trial.AcquisitionExample}]
+/ branch = [if (values.AcquiInstrSelect < 3) {values.AcquiInstrSelect += 1}]
+</trial>
+
+<text AcquisitionInstr>
+/ items = ("In der kommenden Phase spielst du ein Wettbewerbsspiel gegen deine Interaktionspartner. Du wirst in jedem Durchgang Bilder deiner Interaktionspartner sehen. Sie haben ihrerseits die Antworten auf die Fragen, die du zu Beginn beantwortet hast, bekommen und durchgelesen. 
+
+Deine Aufgabe ist es, so schnell wie möglich die Leertaste zu drücken, wenn die roten Kreise grün werden. Doch Vorsicht: deine Interaktionspartner drücken auch! Die Person, die am schnellsten drückt, gewinnt. Wenn ein Spieler während eines Durchlaufs gar nicht drückt, ist der Durchgang ungültig und wird für alle wiederholt.
+
+Der Gewinner jeder Runde darf einen Mitspieler aussuchen, an dem ein UNANGENEHMES GERÄUSCH verteilt wird, und auch die Intensität dieses Geräuschs festlegen.
+
+Vor jeder Runde wirst du angeben, welchen Mitspieler du als Ziel wählst und wie stark das Geräusch sein soll. Danach erscheinen die Bilder deiner Mitspieler und die roten Kreise. Sobald die roten Kreise grün werden, drücke schnell die Leertaste!
+
+Der Kreis des Gewinners wird nach dem Reaktionsfenster grün bleiben. Dem vom Gewinner gewählten Spieler wird dann das Geräusch vorgespielt.
+
+Weiter geht es mit der LEERTASTE.",
+"Nach jedem Durchgang erscheint für kurze Zeit ein chinesisches Schriftzeichen. Bewerte möglichst SPONTAN, ob dir das Schriftzeichen gut oder schlecht gefällt. Es gibt dabei keine richtige oder falsche Antwort!
+
+Dabei gilt folgende Zuordnung:
+
+<%if (values.AMPKeyAssignment == ~"Positive Left~") ~"GUT          ====>    LINKE MAUSTASTE~"
+else ~"SCHLECHT    ====>    LINKE MAUSTASTE~"%>
+<%if (values.AMPKeyAssignment == ~"Positive Left~") ~"SCHLECHT    ====>    RECHTE MAUSTASTE~"
+else ~"GUT          ====>    RECHTE MAUSTASTE~"%>
+
+Lege also die linke Hand auf die Leertaste und die rechte Hand auf die Maus.
+
+Die Bewertung der Schriftzeichen hat NICHTS mit deinen Interaktionspartnern zu tun!
+
+Los geht es mit der LEERTASTE.",
+"Jetzt kommt wieder das Wettbewerbspiel.
+
+1. Wähle den Mitspieler aus, der den Ton hören soll, wenn du gewinnst.
+2. Wähle die Intensität des Tons.
+3. Drücke die Leertaste, sobald die Kreise grün werden.
+
+Bewerte nach jedem Durchgang das chinesische Schriftzeichen: 
+
+<%if (values.AMPKeyAssignment == ~"Positive Left~") ~"GUT          ====>    LINKE MAUSTASTE~"
+else ~"SCHLECHT    ====>    LINKE MAUSTASTE~"%>
+<%if (values.AMPKeyAssignment == ~"Positive Left~") ~"SCHLECHT    ====>    RECHTE MAUSTASTE~"
+else ~"GUT          ====>    RECHTE MAUSTASTE~"%>
+
+Los geht es mit der LEERTASTE.")
+/ fontstyle = ("Verdana", 2.5%)
+/ size = (80%,80%)
+/ vjustify = center 
+/ select = values.AcquiInstrSelect
+</text>
+
+<trial AcquisitionExample>
+/ ontrialbegin = [if (trial.AcquisitionExample.count == 0) {shape.ResponseCircle1.color = red; shape.ResponseCircle2.color = red; shape.ResponseCircle3.color = red}]
+/ stimulustimes = [0 = AcquisitionExample, MEBoxOutline, MEBox, ME, ResponseCircle1, ResponseCircle2, ResponseCircle3, PlayerA, PlayerB]
+/ validresponse = (" ")
+/ beginresponsetime = values.MinimumInstructionReadTime
+/ recorddata = false
+/ branch = [if (text.AcquisitionExample.currentindex < text.AcquisitionExample.itemcount) trial.AcquisitionExample]
+/ ontrialend = [if (text.AcquisitionExample.currentindex == 1) 
+{shape.ResponseCircle1.color = green; shape.ResponseCircle2.color = green; shape.ResponseCircle3.color = green}
+else if (text.AcquisitionExample.currentindex == 2) 
+{shape.ResponseCircle1.color = green; shape.ResponseCircle2.color = red; shape.ResponseCircle3.color = red}
+else if (text.AcquisitionExample.currentindex == 3) 
+{trial.AcquisitionExample.insertstimulustime(text.Intensity, 0); trial.AcquisitionExample.insertstimulustime(picture.Tone, 0); values.HorizontalPosition = "50%";
+values.TaylorToneIntensity = 3}]
+/ branch = [trial.AcquisitionInstr]
+</trial>
+
+<text AcquisitionExample>
+/ items = ("Zu Beginn jedes Durchgangs siehst du die Bilder deiner Interaktionspartner und die drei roten Kreise.
+
+Weiter mit der Leertaste.",
+"Nach kurzer Zeit werden die Kreise grün. Jetzt gilt es, schneller als deine Interaktionspartner die LEERTASTE zu drücken.
+
+Weiter mit der Leertaste.",
+"Nach Ablauf des Zeitlimits bleibt der Kreis des Gewinners grün, die der anderen werden wieder rot.
+
+Weiter mit der Leertaste.",
+"Unmittelbar danach wird die Person, die der Gewinner bestimmt hat, einen Ton in der vom Gewinner festgelegten Intensität hören.
+
+Jeder Spieler legt diese Auswahl zu Beginn von jeder Runde fest, bevor klar ist, wer gewinnt.
+
+Weiter mit der Leertaste.")
+/ fontstyle = ("Verdana", 2.5%)
+/ size = (80%,80%)
+/ vjustify = center 
+/ select = sequence
+</text>
+
+<picture Tone>
+/ items = ("Intensity3.gif")
+/ position = (values.HorizontalPosition,30%)
+/ size = (5%,5%)
+</picture>
+
+
+<trial StartNextAcqui>
+/ stimulustimes = [0 = StartNextAcqui, Center]
+/ inputdevice = mouseover
+/ validresponse = (Center)
+/ recorddata = false
+/ branch = [likert.ChooseTarget]
+</trial>
+
+<text StartNextAcqui>
+/ items = ("Bitte bewege die Maus auf das Kreuz, um den nächsten Durchgang zu starten.")
+/ fontstyle = ("Verdana", 2.5%)
+/ position = (50, 40)
+/ vjustify = center 
+</text>
+
+<text Center>
+/ items = ("+")
+/ fontstyle = ("Verdana", 5%)
+/ position = (50, 70)
+/ vjustify = center 
+</text>
+
+
+
+
+
+<likert ChooseTarget>
+/ ontrialbegin = [values.NumPrecedingTimeouts = 0]
+/ ontrialbegin = [values.TrialCounter += 1]
+/ ontrialbegin = [if (list.AcquisitionMaster.nextvalue == 1) values.TaylorWinner = list.AcquisitionMain.nextvalue
+else values.TaylorWinner = evaluate(expressions.CurrentAcquisitionListItem)]
+/ stimulustimes = [0 = ChooseTarget, PlayerA, PlayerB]
+/anchors = [1= "Spieler A"; 2="Spieler B"]
+/numpoints = 2
+/position = (50, 70)
+/mouse = true
+/ branch = [likert.ChooseIntensity]
+/ ontrialend = [if (likert.ChooseTarget.response == 1 && values.AggressivePlayer == "Player A") values.SelectedPlayer = "Aggressive Player"
+else if (likert.ChooseTarget.response == 1 && values.NonaggressivePlayer == "Player A") values.SelectedPlayer = "Nonaggressive Player"
+else if (likert.ChooseTarget.response == 2 && values.AggressivePlayer == "Player B") values.SelectedPlayer = "Aggressive Player"
+else if (likert.ChooseTarget.response == 2 && values.NonaggressivePlayer == "Player B") values.SelectedPlayer = "Nonaggressive Player"]
+/ recorddata = false
+/ skip = [monkey.monkeymode && values.SkipAcquiBlocksForMonkey]
+</likert>
+
+<text debug>
+/ items = ("Master List: <%list.AcquisitionMaster.currentvalue%>
+Main List: <%list.AcquisitionMain.currentvalue%>
+Secondary list: <%evaluate(expressions.CurrentAcquisitionListItem)%>
+TaylorWinner: <%values.TaylorWinner%>")
+/ fontstyle = ("Verdana", 2%)
+/ position = (50,10)
+/ size = (90%,10%)
+/ vjustify = center 
+</text>
+
+
+<picture PlayerA>
+/ items = ("7_pic.png", "10_pic.png")
+/ position = (20, 30)
+/ size = (15%,15%)
+/ erase = false
+/ select = values.PlayerASelecter
+</picture>
+
+<picture PlayerB>
+/ items = ("7_pic.png", "10_pic.png")
+/ position = (80, 30)
+/ size = (15%,15%)
+/ erase = false
+/ select = values.PlayerBSelecter
+</picture>
+
+<picture NoShock>
+/ items = ("NoShock.png")
+/ position = (50, 30)
+/ size = (15%,15%)
+/ erase = false
+</picture>
+
+<text ChooseTarget>
+/ items = ("Welcher Mitspieler soll den Ton hören, wenn du diese Runde gewinnst?")
+/ fontstyle = ("Verdana", 2%)
+/ size = (90%,10%)
+/ vjustify = center 
+</text>
+
+<likert ChooseIntensity>
+/ ontrialbegin = [if (values.PicturePositions == "Picture 1 left") values.ChosenPlayerSelecter = likert.ChooseTarget.response
+else values.ChosenPlayerSelecter = 3-likert.ChooseTarget.response]
+/ stimulustimes = [0 = ChooseIntensity, PlayerABlocker, PlayerBBlocker]
+/numpoints = 5
+/position = (50, 70)
+/mouse = true
+/ branch = [trial.PrepareForTaylor]
+/ recorddata = false
+/ ontrialend = [values.ChosenIntensity = likert.ChooseIntensity.response]
+</likert>
+
+<shape PlayerABlocker>
+/ shape = rectangle
+/ size = (15%,15%)
+/ color = white
+/ position = (20, 30)
+</shape>
+
+<shape PlayerBBlocker>
+/ shape = rectangle
+/ size = (15%,15%)
+/ color = white
+/ position = (80, 30)
+</shape>
+
+<picture ChosenPlayer>
+/ items = ("7_pic.png", "10_pic.png")
+/ position = (50, 30)
+/ size = (15%,15%)
+/ erase = false
+/ select = values.ChosenPlayerSelecter
+</picture>
+
+<text ChooseIntensity>
+/ items = ("Wie laut soll der Ton sein, den der Mitspieler hört?")
+/ fontstyle = ("Verdana", 2%)
+/ size = (90%,10%)
+/ vjustify = center 
+</text>
+
+<trial PrepareForTaylor>
+/ ontrialbegin = [shape.ResponseCircle1.color = red; shape.ResponseCircle2.color = red; shape.ResponseCircle3.color = red]
+/ ontrialbegin = [values.TaylorWaitTime = rand(values.TaylorWaitTimeLowerBound,values.TaylorWaitTimeUpperBound)]
+/ stimulustimes = [0 = MEBoxOutline, MEBox, ME, ResponseCircle1, ResponseCircle2, ResponseCircle3, PlayerA, PlayerB]
+/ timeout = values.TaylorWaitTime
+/ recorddata = false
+/ validresponse = (" ")
+/ correctresponse = (noresponse)
+/ branch = [if (trial.PrepareForTaylor.response == 57) {values.FeedbackSelect = 2; trial.TaylorTimeout}]
+/ branch = [trial.TaylorResponse]
+</trial>
+
+<text ME>
+/ items = ("ICH")
+/ fontstyle = ("Verdana", 4%)
+/ position = (50,30)
+/ size = (5%,5%)
+/ vjustify = center 
+/ erase = false
+</text>
+
+<shape MEBoxOutline>
+/ shape = rectangle
+/ color = black
+/ position = (50,30)
+/ size = (15%,15%)
+/ erase = false
+</shape>
+
+<shape MEBox>
+/ shape = rectangle
+/ color = white
+/ position = (50,30)
+/ size = (14.8%,14.8%)
+/ erase = false
+</shape>
+
+<shape ResponseCircle1>
+/ shape = circle
+/ color = red
+/ position = (20,70)
+/ size = (10%,16%)
+/ erase = false
+</shape>
+
+<shape ResponseCircle2>
+/ shape = circle
+/ color = red
+/ position = (50,70)
+/ size = (10%,16%)
+/ erase = false
+</shape>
+
+<shape ResponseCircle3>
+/ shape = circle
+/ color = red
+/ position = (80,70)
+/ size = (10%,16%)
+/ erase = false
+</shape>
+
+
+
+<trial TaylorResponse>
+/ stimulustimes = [0 = ResponseCircle1, ResponseCircle2, ResponseCircle3]
+/ ontrialbegin = [shape.ResponseCircle1.color = green; shape.ResponseCircle2.color = green; shape.ResponseCircle3.color = green]
+/ validresponse = (" ")
+/ timeout = values.TaylorResponseTimeout
+/ branch = [if (trial.TaylorResponse.response == 0) {values.FeedbackSelect = 1; trial.TaylorTimeout}]
+/ branch = [trial.TaylorFeedback]
+/ recorddata = false
+</trial>
+
+<trial TaylorTimeout>
+/ stimulustimes = [0 = CoverResponseCircles, TaylorNoResponse]
+/ ontrialbegin = [shape.ResponseCircle1.color = white; shape.ResponseCircle2.color = white; shape.ResponseCircle3.color = white]
+/ ontrialbegin = [values.NumPrecedingTimeouts += 1]
+/ timeout = values.TaylorTimeout
+/ recorddata = false
+/ branch = [trial.PrepareForTaylor]
+</trial>
+
+<text TaylorNoResponse>
+/ items = ("Keine Reaktion bei mindestens einem Spieler! 
+Bereitmachen für neuen Durchgang...",
+"Mindestens ein Spieler hat zu früh gedrückt!
+Bereitmachen für neuen Durchgang...")
+/ fontstyle = ("Verdana", 2%)
+/ size = (90%,10%)
+/ vjustify = center 
+/ txcolor = red
+/ select = values.FeedbackSelect
+</text>
+
+<shape CoverResponseCircles>
+/ shape = rectangle
+/ size = (80%,18%)
+/ color = white
+/ position = (50,70)
+</shape>
+
+
+<trial TaylorFeedback>
+/ stimulustimes = [0 = ResponseCircle1, ResponseCircle2, ResponseCircle3]
+/ ontrialbegin = [values.LatencyPrecedingResponse = trial.TaylorResponse.latency]
+/ ontrialbegin = [if (values.TaylorWinner == "Aggressive Player" && values.AggressivePlayer == "Player A") 
+{shape.ResponseCircle2.color = red; shape.ResponseCircle3.color = red}
+else if (values.TaylorWinner == "Nonaggressive Player" && values.NonaggressivePlayer == "Player A") 
+{shape.ResponseCircle2.color = red; shape.ResponseCircle3.color = red}
+else if (values.TaylorWinner == "Aggressive Player" && values.AggressivePlayer == "Player B") 
+{shape.ResponseCircle2.color = red; shape.ResponseCircle1.color = red}
+else if (values.TaylorWinner == "Nonaggressive Player" && values.NonaggressivePlayer == "Player B") 
+{shape.ResponseCircle2.color = red; shape.ResponseCircle1.color = red}
+else {shape.ResponseCircle1.color = red; shape.ResponseCircle3.color = red}]
+/ ontrialbegin = [if (values.TaylorWinner == "Aggressive Player") values.TaylorToneIntensity = noreplace(4,4,5,5)
+else if (values.TaylorWinner == "Nonaggressive Player") values.TaylorToneIntensity = 1
+else values.TaylorToneIntensity = likert.ChooseIntensity.response]
+/ ontrialbegin = [if (values.TaylorWinner == "Aggressive Player") values.TaylorTarget = evaluate(expressions.CurrentAggressivePlayerListItem)
+else if (values.TaylorWinner == "Nonaggressive Player") values.TaylorTarget = evaluate(expressions.CurrentNonAggressivePlayerListItem)
+else if (values.TaylorWinner == "Participant" && likert.ChooseTarget.response == 1 && values.AggressivePlayer == "Player A") values.TaylorTarget = "Aggressive Player"
+else if (values.TaylorWinner == "Participant" && likert.ChooseTarget.response == 1 && values.AggressivePlayer == "Player B") values.TaylorTarget = "Nonaggressive Player"
+else if (values.TaylorWinner == "Participant" && likert.ChooseTarget.response == 2 && values.AggressivePlayer == "Player A") values.TaylorTarget = "Nonaggressive Player"
+else if (values.TaylorWinner == "Participant" && likert.ChooseTarget.response == 2 && values.AggressivePlayer == "Player B") values.TaylorTarget = "Aggressive Player"]
+/ ontrialbegin = [if (values.TaylorTarget == "Participant") values.HorizontalPosition = "50%"
+else if (values.TaylorTarget == "Aggressive Player" && values.AggressivePlayer == "Player A") values.HorizontalPosition = "20%"
+else if (values.TaylorTarget == "Nonaggressive Player" && values.NonaggressivePlayer == "Player A") values.HorizontalPosition = "20%"
+else if (values.TaylorTarget == "Aggressive Player" && values.AggressivePlayer == "Player B") values.HorizontalPosition = "80%"
+else if (values.TaylorTarget == "Nonaggressive Player" && values.NonaggressivePlayer == "Player B") values.HorizontalPosition = "80%"]
+/ ontrialbegin = [if (values.TaylorTarget == "Participant") sound.NoiseBlast.volume = 0
+else sound.NoiseBlast.volume = -10000]
+/ timeout = values.ToneFeedbackLength
+/ branch = [trial.AMP]
+/ recorddata = false
+</trial>
+
+<text Intensity>
+/ items = ("Lautstärke:
+<%values.TaylorToneIntensity%>")
+/ fontstyle = ("Verdana", 2%)
+/ size = (10%,5%)
+/ vjustify = center 
+/ position = (values.HorizontalPosition,18%)
+</text>
+
+<video SoundWave>
+/ loop = false
+/ items = ("Intensity1.gif", "Intensity2.gif", "Intensity3.gif", "Intensity4.gif", "Intensity5.gif")
+/ select = values.TaylorToneIntensity
+/ position = (values.HorizontalPosition,30%)
+/ size = (5%,5%)
+</video>
+
+<sound NoiseBlast>
+/ items = ("blast1.wav","blast2.wav","blast3.wav","blast4.wav","blast5.wav")
+/ select = values.TaylorToneIntensity
+</sound>
+
+
+
+
+<trial AMP>
+/ stimulustimes = [0 = AMPIdeograph, Clearscreen, AMPIdeograph, LeftAnchor, RightAnchor; 200 = ClearAmpIdeograph; 275 = Mask]
+/ inputdevice = mouse
+/ showmousecursor = false
+/ validresponse = (lbuttondown,rbuttondown)
+/ iscorrectresponse = [(values.AMPKeyAssignment == "Positive Left" && trial.AMP.response == "lbuttondown") || 
+(values.AMPKeyAssignment == "Positive Right" && trial.AMP.response == "rbuttondown")]
+/ branch = [if (trial.AMP.latency > values.AMPTimeLimit) trial.AMPTooSlow]
+/ branch = [if (script.currentblock == "AcquisitionPhase" && values.TrialCounter < values.AcquisitionTrialsPerBlock) trial.StartNextAcqui]
+/ branch = [if (script.currentblock == "TestPhase" && values.TrialCounter < values.TestTrialsTotalPerBlock) evaluate(list.TestPhaseTrials.nextvalue)]
+</trial>
+
+<trial AMPTooSlow>
+/ stimulustimes = [0 = AMPTooSlow]
+/ timeout = values.AMPFeedbackDuration
+/ recorddata = false
+/ branch = [if (script.currentblock == "AcquisitionPhase" && values.TrialCounter < values.AcquisitionTrialsPerBlock) trial.StartNextAcqui]
+/ branch = [if (script.currentblock == "TestPhase" && values.TrialCounter < values.TestTrialsTotalPerBlock) evaluate(list.TestPhaseTrials.nextvalue)]
+</trial>
+
+<text AMPTooSlow>
+/ items = ("Bitte reagiere möglichst spontan auf die Schriftzeichen!")
+/ txcolor = red
+/ fontstyle = ("Verdana", 2.5%, false, false, false, false, 5, 1)
+</text>
+
+
+
+<picture AMPIdeograph>
+/ items = AMPIdeographs
+/ select = noreplace
+</picture>
+
+<shape ClearAmpIdeograph>
+/ shape = rectangle
+/ size = (25%,25%)
+/ color = white
+</shape>
+
+<picture Mask>
+/ items = ("Mask.bmp")
+</picture>
+
+<text LeftAnchor>
+/ fontstyle = ("Verdana", 2%, false, false, false, false, 5, 1)
+/ position = (25%,75%)
+/ items = ("LINKE MAUSTASTE:
+GUT", "LINKE MAUSTASTE: 
+SCHLECHT")
+/ select = values.AMPKeyAssignmentSelector
+</text>
+
+<text RightAnchor>
+/ fontstyle = ("Verdana", 2%, false, false, false, false, 5, 1)
+/ position = (75%,75%)
+/ items = ("RECHTE MAUSTASTE: 
+SCHLECHT", "RECHTE MAUSTASTE: 
+GUT")
+/ hjustify = right
+/ select = values.AMPKeyAssignmentSelector
+</text>
+
+<item AMPIdeographs>
+/1 = "AMP\pic1.bmp"
+/2 = "AMP\pic2.bmp"
+/3 = "AMP\pic3.bmp"
+/4 = "AMP\pic4.bmp"
+/5 = "AMP\pic5.bmp"
+/6 = "AMP\pic6.bmp"
+/7 = "AMP\pic7.bmp"
+/8 = "AMP\pic8.bmp"
+/9 = "AMP\pic9.bmp"
+/10 = "AMP\pic10.bmp"
+/11 = "AMP\pic11.bmp"
+/12 = "AMP\pic12.bmp"
+/13 = "AMP\pic13.bmp"
+/14 = "AMP\pic14.bmp"
+/15 = "AMP\pic15.bmp"
+/16 = "AMP\pic16.bmp"
+/17 = "AMP\pic17.bmp"
+/18 = "AMP\pic18.bmp"
+/19 = "AMP\pic19.bmp"
+/20 = "AMP\pic20.bmp"
+/21 = "AMP\pic21.bmp"
+/22 = "AMP\pic22.bmp"
+/23 = "AMP\pic23.bmp"
+/24 = "AMP\pic24.bmp"
+/25 = "AMP\pic25.bmp"
+/26 = "AMP\pic26.bmp"
+/27 = "AMP\pic27.bmp"
+/28 = "AMP\pic28.bmp"
+/29 = "AMP\pic29.bmp"
+/30 = "AMP\pic30.bmp"
+/31 = "AMP\pic31.bmp"
+/32 = "AMP\pic32.bmp"
+/33 = "AMP\pic33.bmp"
+/34 = "AMP\pic34.bmp"
+/35 = "AMP\pic35.bmp"
+/36 = "AMP\pic36.bmp"
+/37 = "AMP\pic37.bmp"
+/38 = "AMP\pic38.bmp"
+/39 = "AMP\pic39.bmp"
+/40 = "AMP\pic40.bmp"
+/41 = "AMP\pic41.bmp"
+/42 = "AMP\pic42.bmp"
+/43 = "AMP\pic43.bmp"
+/44 = "AMP\pic44.bmp"
+/45 = "AMP\pic45.bmp"
+/46 = "AMP\pic46.bmp"
+/47 = "AMP\pic47.bmp"
+/48 = "AMP\pic48.bmp"
+/49 = "AMP\pic49.bmp"
+/50 = "AMP\pic50.bmp"
+/51 = "AMP\pic51.bmp"
+/52 = "AMP\pic52.bmp"
+/53 = "AMP\pic53.bmp"
+/54 = "AMP\pic54.bmp"
+/55 = "AMP\pic55.bmp"
+/56 = "AMP\pic56.bmp"
+/57 = "AMP\pic57.bmp"
+/58 = "AMP\pic58.bmp"
+/59 = "AMP\pic59.bmp"
+/60 = "AMP\pic60.bmp"
+/61 = "AMP\pic61.bmp"
+/62 = "AMP\pic62.bmp"
+/63 = "AMP\pic63.bmp"
+/64 = "AMP\pic64.bmp"
+/65 = "AMP\pic65.bmp"
+/66 = "AMP\pic66.bmp"
+/67 = "AMP\pic67.bmp"
+/68 = "AMP\pic68.bmp"
+/69 = "AMP\pic69.bmp"
+/70 = "AMP\pic70.bmp"
+/71 = "AMP\pic71.bmp"
+/72 = "AMP\pic72.bmp"
+/73 = "AMP\pic73.bmp"
+/74 = "AMP\pic74.bmp"
+/75 = "AMP\pic75.bmp"
+/76 = "AMP\pic76.bmp"
+/77 = "AMP\pic77.bmp"
+/78 = "AMP\pic78.bmp"
+/79 = "AMP\pic79.bmp"
+/80 = "AMP\pic80.bmp"
+/81 = "AMP\pic81.bmp"
+/82 = "AMP\pic82.bmp"
+/83 = "AMP\pic83.bmp"
+/84 = "AMP\pic84.bmp"
+/85 = "AMP\pic85.bmp"
+/86 = "AMP\pic86.bmp"
+/87 = "AMP\pic87.bmp"
+/88 = "AMP\pic88.bmp"
+/89 = "AMP\pic89.bmp"
+/90 = "AMP\pic90.bmp"
+/91 = "AMP\pic91.bmp"
+/92 = "AMP\pic92.bmp"
+/93 = "AMP\pic93.bmp"
+/94 = "AMP\pic94.bmp"
+/95 = "AMP\pic95.bmp"
+/96 = "AMP\pic96.bmp"
+/97 = "AMP\pic97.bmp"
+/98 = "AMP\pic98.bmp"
+/99 = "AMP\pic99.bmp"
+/100 = "AMP\pic100.bmp"
+/101 = "AMP\pic101.bmp"
+/102 = "AMP\pic102.bmp"
+/103 = "AMP\pic103.bmp"
+/104 = "AMP\pic104.bmp"
+/105 = "AMP\pic105.bmp"
+/106 = "AMP\pic106.bmp"
+/107 = "AMP\pic107.bmp"
+/108 = "AMP\pic108.bmp"
+/109 = "AMP\pic109.bmp"
+/110 = "AMP\pic110.bmp"
+/111 = "AMP\pic111.bmp"
+/112 = "AMP\pic112.bmp"
+/113 = "AMP\pic113.bmp"
+/114 = "AMP\pic114.bmp"
+/115 = "AMP\pic115.bmp"
+/116 = "AMP\pic116.bmp"
+/117 = "AMP\pic117.bmp"
+/118 = "AMP\pic118.bmp"
+/119 = "AMP\pic119.bmp"
+/120 = "AMP\pic120.bmp"
+/121 = "AMP\pic121.bmp"
+/122 = "AMP\pic122.bmp"
+/123 = "AMP\pic123.bmp"
+/124 = "AMP\pic124.bmp"
+/125 = "AMP\pic125.bmp"
+/126 = "AMP\pic126.bmp"
+/127 = "AMP\pic127.bmp"
+/128 = "AMP\pic128.bmp"
+/129 = "AMP\pic129.bmp"
+/130 = "AMP\pic130.bmp"
+/131 = "AMP\pic131.bmp"
+/132 = "AMP\pic132.bmp"
+/133 = "AMP\pic133.bmp"
+/134 = "AMP\pic134.bmp"
+/135 = "AMP\pic135.bmp"
+/136 = "AMP\pic136.bmp"
+/137 = "AMP\pic137.bmp"
+/138 = "AMP\pic138.bmp"
+/139 = "AMP\pic139.bmp"
+/140 = "AMP\pic140.bmp"
+/141 = "AMP\pic141.bmp"
+/142 = "AMP\pic142.bmp"
+/143 = "AMP\pic143.bmp"
+/144 = "AMP\pic144.bmp"
+/145 = "AMP\pic145.bmp"
+/146 = "AMP\pic146.bmp"
+/147 = "AMP\pic147.bmp"
+/148 = "AMP\pic148.bmp"
+/149 = "AMP\pic149.bmp"
+/150 = "AMP\pic150.bmp"
+/151 = "AMP\pic151.bmp"
+/152 = "AMP\pic152.bmp"
+/153 = "AMP\pic153.bmp"
+/154 = "AMP\pic154.bmp"
+/155 = "AMP\pic155.bmp"
+/156 = "AMP\pic156.bmp"
+/157 = "AMP\pic157.bmp"
+/158 = "AMP\pic158.bmp"
+/159 = "AMP\pic159.bmp"
+/160 = "AMP\pic160.bmp"
+/161 = "AMP\pic161.bmp"
+/162 = "AMP\pic162.bmp"
+/163 = "AMP\pic163.bmp"
+/164 = "AMP\pic164.bmp"
+/165 = "AMP\pic165.bmp"
+/166 = "AMP\pic166.bmp"
+/167 = "AMP\pic167.bmp"
+/168 = "AMP\pic168.bmp"
+/169 = "AMP\pic169.bmp"
+/170 = "AMP\pic170.bmp"
+/171 = "AMP\pic171.bmp"
+/172 = "AMP\pic172.bmp"
+/173 = "AMP\pic173.bmp"
+/174 = "AMP\pic174.bmp"
+/175 = "AMP\pic175.bmp"
+/176 = "AMP\pic176.bmp"
+/177 = "AMP\pic177.bmp"
+/178 = "AMP\pic178.bmp"
+/179 = "AMP\pic179.bmp"
+/180 = "AMP\pic180.bmp"
+/181 = "AMP\pic181.bmp"
+/182 = "AMP\pic182.bmp"
+/183 = "AMP\pic183.bmp"
+/184 = "AMP\pic184.bmp"
+/185 = "AMP\pic185.bmp"
+/186 = "AMP\pic186.bmp"
+/187 = "AMP\pic187.bmp"
+/188 = "AMP\pic188.bmp"
+/189 = "AMP\pic189.bmp"
+/190 = "AMP\pic190.bmp"
+/191 = "AMP\pic191.bmp"
+/192 = "AMP\pic192.bmp"
+/193 = "AMP\pic193.bmp"
+/194 = "AMP\pic194.bmp"
+/195 = "AMP\pic195.bmp"
+/196 = "AMP\pic196.bmp"
+/197 = "AMP\pic197.bmp"
+/198 = "AMP\pic198.bmp"
+/199 = "AMP\pic199.bmp"
+/200 = "AMP\pic200.bmp"
+</item>
+
+
+<block TestPhase>
+/ onblockbegin = [values.TrialCounter = 0; sound.NoiseBlast.volume = -10000; values.TaylorToneIntensity = 3; values.ListNumber = ""; values.ChosenIntensity = ""]
+/ trials = [1 = TestInstr; 2 = list.TestPhaseTrials]
+/ branch = [if (values.BlockCounter < values.NumberOfMiniblockPairs) block.AcquisitionPhase]
+/ onblockend = [values.PrecedingTrial = ""; values.TaylorToneIntensity = ""; values.LatencyPrecedingResponse = ""; values.NumPrecedingTimeouts = ""; 
+values.SelectedPlayer = ""]
+</block>
+
+<trial TestInstr>
+/ stimulustimes = [0 = TestInstr]
+/ validresponse = (" ")
+/ beginresponsetime = values.MinimumInstructionReadTime
+/ recorddata = false
+/ branch = [if (values.TestInstrSelect < 2) {values.TestInstrSelect += 1}]
+</trial>
+
+<text TestInstr>
+/ items = ("Jetzt sollst du immer wieder einen Interaktionspartner wählen, dem dann ein Ton von mittlerer Intensität abgespielt wird. Es ist auch möglich, keinen von beiden Partnern zu wählen. 
+
+Dazu wird ein farbiger Rahmen zwischen den Bildern der beiden Partner und einem Bild für ~"kein Shock~" hin- und herspringen. Wenn der Rahmen bei dem gewünschten Ziel ist, drücke die Leertaste, um dieses Ziel auszuwählen. 
+
+Der Rahmen wechselt unregelmäßig schnell. Versuche immer, den Partner zu treffen, dem du den Ton schicken willst bzw. keinen von beiden zu treffen, wenn du keinem einen Ton schicken willst!
+
+Nach jedem Durchgang wird weiterhin ein chinesisches Schriftzeichen erscheinen, das du SPONTAN bewerten sollst. Die Zuordnung hier ist die gleiche wie gerade eben:
+
+<%if (values.AMPKeyAssignment == ~"Positive Left~") ~"GUT          ====>    LINKE MAUSTASTE~"
+else ~"SCHLECHT    ====>    LINKE MAUSTASTE~"%>
+<%if (values.AMPKeyAssignment == ~"Positive Left~") ~"SCHLECHT    ====>    RECHTE MAUSTASTE~"
+else ~"GUT          ====>    RECHTE MAUSTASTE~"%>
+
+Auch hier gilt: die Bewertung der Schriftzeichen hat NICHTS mit deinen Interaktionspartnern zu tun!
+
+Los geht es mit der LEERTASTE.",
+"Jetzt kommt wieder die Aufgabe mit dem Rahmen. Drücke die Leertaste, um den Partner zu wählen, dem du einen Ton von mittlerer Intensität schicken willst bzw. keinen Partner zu wählen.
+
+Bewerte danach SPONTAN das Schriftzeichen:
+
+<%if (values.AMPKeyAssignment == ~"Positive Left~") ~"GUT          ====>    LINKE MAUSTASTE~"
+else ~"SCHLECHT    ====>    LINKE MAUSTASTE~"%>
+<%if (values.AMPKeyAssignment == ~"Positive Left~") ~"SCHLECHT    ====>    RECHTE MAUSTASTE~"
+else ~"GUT          ====>    RECHTE MAUSTASTE~"%>
+
+Los geht es mit der LEERTASTE.")
+/ fontstyle = ("Verdana", 2.5%)
+/ size = (80%,80%)
+/ vjustify = center 
+/ select = values.TestInstrSelect
+</text>
+
+<list TestPhaseTrials>
+/ items = (trial.PopulateFastFlickerTrials, trial.PopulateSlowFlickerTrials)
+/ itemprobabilities = (values.TestTrialsTotalPerBlock/values.TestTrialsTotalPerBlock-values.CatchTrialsPerTestBlock/values.TestTrialsTotalPerBlock, values.CatchTrialsPerTestBlock/values.TestTrialsTotalPerBlock)
+/ poolsize = values.TestTrialsTotalPerBlock/2
+</list>
+
+
+/ trialduration = 1000
+/ stimulustimes = [0 = debug2]
+<trial PopulateSlowFlickerTrials>
+/ trialduration = 0
+/ ontrialbegin = [if (values.TimeoutCounter == 0) {list.SwitchTimings.clearitems(); list.CurrentPositions.clearitems()}]
+/ ontrialbegin = [values.NumPrecedingTimeouts = 0]
+/ ontrialbegin = [if (values.CurrentSide == "A" && rand(0,1) < .5) values.CurrentSide = "B"
+else if (values.CurrentSide == "A") values.CurrentSide = "None"
+else if (values.CurrentSide == "B" && rand(0,1) < .5) values.CurrentSide = "A"
+else if (values.CurrentSide == "B") values.CurrentSide = "None"
+else if (values.CurrentSide == "None" && rand(0,1) < .5) values.CurrentSide = "A"
+else if (values.CurrentSide == "None") values.CurrentSide = "B"]
+/ ontrialbegin = [if (values.TimeoutCounter == 0 && rand(0,3) < 1) values.CurrentSide = "A"
+else if (values.TimeoutCounter == 0 && rand(0,1) < .5) values.CurrentSide = "B"
+else if (values.TimeoutCounter == 0) values.CurrentSide = "None"]
+/ ontrialbegin = [if (values.TimeoutCounter == 0) values.StartingSide = values.CurrentSide]
+/ ontrialbegin = [if (values.TimeoutCounter == 0) {values.i = 0}]
+/ ontrialbegin = [values.TestPhaseSlowFlickerInterval = floor(rand(values.TestPhaseSlowFlickerMin,values.TestPhaseSlowFlickerMax))]
+/ ontrialbegin = [if (!(values.TimeoutCounter == 0)) {values.i += 1; list.SwitchTimings.insertitem(values.TestPhaseSlowFlickerInterval, values.i); 
+list.CurrentPositions.insertitem(values.CurrentSide, values.i)}]
+/ branch = [if (values.TimeoutCounter < values.TestPhaseTimeout && values.CurrentSide == "B")
+{trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderBottomABlocker, values.TimeoutCounter); 
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderTopABlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderRightABlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderLeftABlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderBottomNoneBlocker, values.TimeoutCounter); 
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderTopNoneBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderRightNoneBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderLeftNoneBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderBottomB, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderTopB, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderRightB, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderLeftB, values.TimeoutCounter); 
+values.TimeoutCounter += values.TestPhaseSlowFlickerInterval; 
+trial.PopulateSlowFlickerTrials}
+else if (values.TimeoutCounter < values.TestPhaseTimeout && values.CurrentSide == "A")
+{trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderBottomBBlocker, values.TimeoutCounter); 
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderTopBBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderRightBBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderLeftBBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderBottomNoneBlocker, values.TimeoutCounter); 
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderTopNoneBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderRightNoneBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderLeftNoneBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderBottomA, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderTopA, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderRightA, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderLeftA, values.TimeoutCounter); 
+values.TimeoutCounter += values.TestPhaseSlowFlickerInterval; 
+trial.PopulateSlowFlickerTrials}
+else if (values.TimeoutCounter < values.TestPhaseTimeout && values.CurrentSide == "None")
+{trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderBottomABlocker, values.TimeoutCounter); 
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderTopABlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderRightABlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderLeftABlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderBottomBBlocker, values.TimeoutCounter); 
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderTopBBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderRightBBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderLeftBBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderBottomNone, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderTopNone, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderRightNone, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerSlow.insertstimulustime(shape.BorderLeftNone, values.TimeoutCounter); 
+values.TimeoutCounter += values.TestPhaseSlowFlickerInterval; 
+trial.PopulateSlowFlickerTrials}]
+/ branch = [values.TimeoutCounter = 0; trial.TestPhaseTrialFlickerSlow]
+/ recorddata = false
+/ ontrialend = [if (values.LowestSwitchTime > values.TestPhaseSlowFlickerInterval) values.LowestSwitchTime = values.TestPhaseSlowFlickerInterval]
+</trial>
+
+
+
+<trial PopulateFastFlickerTrials>
+/ trialduration = 0
+/ ontrialbegin = [values.NumPrecedingTimeouts = 0]
+/ ontrialbegin = [if (values.CurrentSide == "A" && rand(0,1) < .5) values.CurrentSide = "B"
+else if (values.CurrentSide == "A") values.CurrentSide = "None"
+else if (values.CurrentSide == "B" && rand(0,1) < .5) values.CurrentSide = "A"
+else if (values.CurrentSide == "B") values.CurrentSide = "None"
+else if (values.CurrentSide == "None" && rand(0,1) < .5) values.CurrentSide = "A"
+else if (values.CurrentSide == "None") values.CurrentSide = "B"]
+/ ontrialbegin = [if (values.TimeoutCounter == 0 && rand(0,3) < 1) values.CurrentSide = "A"
+else if (values.TimeoutCounter == 0 && rand(0,1) < .5) values.CurrentSide = "B"
+else if (values.TimeoutCounter == 0) values.CurrentSide = "None"]
+/ ontrialbegin = [if (values.TimeoutCounter == 0) values.StartingSide = values.CurrentSide]
+/ ontrialbegin = [values.TestPhaseFastFlickerInterval = floor(rand(values.TestPhaseFastFlickerMin,values.TestPhaseFastFlickerMax))]
+/ ontrialbegin = [if (rand(0,1) < values.TestPhaseFastFlickerModifierChance) values.TestPhaseFastFlickerInterval += values.TestPhaseFastFlickerModifier]
+/ branch = [if (values.TimeoutCounter < values.TestPhaseTimeout && values.CurrentSide == "B")
+{trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderBottomABlocker, values.TimeoutCounter); 
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderTopABlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderRightABlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderLeftABlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderBottomNoneBlocker, values.TimeoutCounter); 
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderTopNoneBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderRightNoneBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderLeftNoneBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderBottomB, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderTopB, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderRightB, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderLeftB, values.TimeoutCounter); 
+values.TimeoutCounter += values.TestPhaseFastFlickerInterval; 
+trial.PopulateFastFlickerTrials}
+else if (values.TimeoutCounter < values.TestPhaseTimeout && values.CurrentSide == "A")
+{trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderBottomBBlocker, values.TimeoutCounter); 
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderTopBBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderRightBBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderLeftBBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderBottomNoneBlocker, values.TimeoutCounter); 
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderTopNoneBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderRightNoneBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderLeftNoneBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderBottomA, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderTopA, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderRightA, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderLeftA, values.TimeoutCounter); 
+values.TimeoutCounter += values.TestPhaseFastFlickerInterval;
+trial.PopulateFastFlickerTrials}
+else if (values.TimeoutCounter < values.TestPhaseTimeout && values.CurrentSide == "None")
+{trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderBottomABlocker, values.TimeoutCounter); 
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderTopABlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderRightABlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderLeftABlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderBottomBBlocker, values.TimeoutCounter); 
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderTopBBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderRightBBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderLeftBBlocker, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderBottomNone, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderTopNone, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderRightNone, values.TimeoutCounter);
+trial.TestPhaseTrialFlickerFast.insertstimulustime(shape.BorderLeftNone, values.TimeoutCounter); 
+values.TimeoutCounter += values.TestPhaseFastFlickerInterval; 
+trial.PopulateFastFlickerTrials}]
+/ branch = [values.TimeoutCounter = 0; trial.TestPhaseTrialFlickerFast]
+/ recorddata = false
+/ ontrialend = [if (values.LowestSwitchTime > values.TestPhaseFastFlickerInterval) values.LowestSwitchTime = values.TestPhaseFastFlickerInterval]
+</trial>
+
+<list SwitchTimings>
+/ items = ("Filler (will be removed during experiment)")
+/ selectionmode = sequence
+</list>
+
+<list CurrentPositions>
+/ items = ("Filler (will be removed during experiment)")
+/ selectionmode = sequence
+</list>
+
+
+<trial TestPhaseTrialFlickerFast>
+/ stimulustimes = [0 = PlayerA, PlayerB, NoShock]
+/ timeout = values.TestPhaseTimeout + values.TestPhaseFlickerPreTrialPause
+/ validresponse = (" ")
+/ branch = [if (trial.TestPhaseTrialFlickerFast.response == 0) {values.LastTestTrial = "Fast"; trial.TestPhaseTooSlow}]
+/ branch = [trial.TestPhaseTrial]
+/ recorddata = false
+/ beginresponsetime = -1
+</trial>
+
+
+<shape BorderLeftA>
+/ shape = rectangle
+/ color = green
+/ size = (.5%,30.5%)
+/ position = (values.BorderLeftPosition,30)
+</shape>
+
+<shape BorderRightA>
+/ shape = rectangle
+/ color = green
+/ size = (.5%,30.5%)
+/ position = (values.BorderRightPosition,30)
+</shape>
+
+<shape BorderTopA>
+/ shape = rectangle
+/ color = green
+/ size = (15%,.5%)
+/ position = (values.BorderTopPosition,15)
+</shape>
+
+<shape BorderBottomA>
+/ shape = rectangle
+/ color = green
+/ size = (15%,.5%)
+/ position = (values.BorderBottomPosition,45)
+</shape>
+
+<shape BorderLeftB>
+/ shape = rectangle
+/ color = green
+/ size = (.5%,30.5%)
+/ position = (100-values.BorderLeftPosition,30)
+</shape>
+
+<shape BorderRightB>
+/ shape = rectangle
+/ color = green
+/ size = (.5%,30.5%)
+/ position = (100-values.BorderRightPosition,30)
+</shape>
+
+<shape BorderTopB>
+/ shape = rectangle
+/ color = green
+/ size = (15%,.5%)
+/ position = (100-values.BorderTopPosition,15)
+</shape>
+
+<shape BorderBottomB>
+/ shape = rectangle
+/ color = green
+/ size = (15%,.5%)
+/ position = (100-values.BorderBottomPosition,45)
+</shape>
+
+
+<shape BorderLeftABlocker>
+/ shape = rectangle
+/ color = white
+/ size = (.5%,30.5%)
+/ position = (values.BorderLeftPosition,30)
+</shape>
+
+<shape BorderRightABlocker>
+/ shape = rectangle
+/ color = white
+/ size = (.5%,30.5%)
+/ position = (values.BorderRightPosition,30)
+</shape>
+
+<shape BorderTopABlocker>
+/ shape = rectangle
+/ color = white
+/ size = (15%,.5%)
+/ position = (values.BorderTopPosition,15)
+</shape>
+
+<shape BorderBottomABlocker>
+/ shape = rectangle
+/ color = white
+/ size = (15%,.5%)
+/ position = (values.BorderBottomPosition,45)
+</shape>
+
+<shape BorderLeftBBlocker>
+/ shape = rectangle
+/ color = white
+/ size = (.5%,30.5%)
+/ position = (100-values.BorderLeftPosition,30)
+</shape>
+
+<shape BorderRightBBlocker>
+/ shape = rectangle
+/ color = white
+/ size = (.5%,30.5%)
+/ position = (100-values.BorderRightPosition,30)
+</shape>
+
+<shape BorderTopBBlocker>
+/ shape = rectangle
+/ color = white
+/ size = (15%,.5%)
+/ position = (100-values.BorderTopPosition,15)
+</shape>
+
+<shape BorderBottomBBlocker>
+/ shape = rectangle
+/ color = white
+/ size = (15%,.5%)
+/ position = (100-values.BorderBottomPosition,45)
+</shape>
+
+<shape BorderLeftNone>
+/ shape = rectangle
+/ color = green
+/ size = (.5%,30.5%)
+/ position = (42.5,30)
+</shape>
+
+<shape BorderRightNone>
+/ shape = rectangle
+/ color = green
+/ size = (.5%,30.5%)
+/ position = (57.5,30)
+</shape>
+
+<shape BorderTopNone>
+/ shape = rectangle
+/ color = green
+/ size = (15%,.5%)
+/ position = (50,15)
+</shape>
+
+<shape BorderBottomNone>
+/ shape = rectangle
+/ color = green
+/ size = (15%,.5%)
+/ position = (50,45)
+</shape>
+
+<shape BorderLeftNoneBlocker>
+/ shape = rectangle
+/ color = white
+/ size = (.5%,30.5%)
+/ position = (42.5,30)
+</shape>
+
+<shape BorderRightNoneBlocker>
+/ shape = rectangle
+/ color = white
+/ size = (.5%,30.5%)
+/ position = (57.5,30)
+</shape>
+
+<shape BorderTopNoneBlocker>
+/ shape = rectangle
+/ color = white
+/ size = (15%,.5%)
+/ position = (50,15)
+</shape>
+
+<shape BorderBottomNoneBlocker>
+/ shape = rectangle
+/ color = white
+/ size = (15%,.5%)
+/ position = (50,45)
+</shape>
+
+
+
+
+
+<trial TestPhaseTrialFlickerSlow>
+/ stimulustimes = [0 = PlayerA, PlayerB, NoShock]
+/ timeout = values.TestPhaseTimeout + values.TestPhaseFlickerPreTrialPause
+/ validresponse = (" ")
+/ branch = [if (trial.TestPhaseTrialFlickerSlow.response == 0) {values.LastTestTrial = "Slow"; trial.TestPhaseTooSlow}]
+/ branch = [trial.TestPhaseCatchTrialPrep]
+/ recorddata = false
+/ beginresponsetime = -1
+/ ontrialend = [values.i = 0]
+</trial>
+
+<trial TestPhaseTrial>
+/ ontrialbegin = [values.TrialCounter += 1; values.TimeoutCounter = 0]
+/ ontrialbegin = [if (list.TestPhaseOutcomes.nextvalue == values.AggressivePlayer) values.SelectedPlayer = "Aggressive Player"
+else if (list.TestPhaseOutcomes.currentvalue == values.NonaggressivePlayer) values.SelectedPlayer = "Nonaggressive Player"
+else values.SelectedPlayer = "None"]
+/ ontrialbegin = [trial.TestPhaseTrial.removestimulustime(0); trial.TestPhaseTrial.removestimulustime(values.TestPhaseSelectionFeedbackOffset)]
+/ ontrialbegin = [if (list.TestPhaseOutcomes.currentvalue == "Player A") {trial.TestPhaseTrial.insertstimulustime(shape.BorderBottomA, 0);
+trial.TestPhaseTrial.insertstimulustime(shape.BorderTopA, 0); trial.TestPhaseTrial.insertstimulustime(shape.BorderLeftA, 0); 
+trial.TestPhaseTrial.insertstimulustime(shape.BorderRightA, 0); trial.TestPhaseTrial.insertstimulustime(picture.PlayerA, 0); 
+trial.TestPhaseTrial.insertstimulustime(picture.PlayerB, 0); trial.TestPhaseTrial.insertstimulustime(picture.NoShock, 0); 
+trial.TestPhaseTrial.insertstimulustime(video.SoundWave, values.TestPhaseSelectionFeedbackOffset); 
+trial.TestPhaseTrial.insertstimulustime(text.Intensity, values.TestPhaseSelectionFeedbackOffset); values.HorizontalPosition = 20}
+else if (list.TestPhaseOutcomes.currentvalue == "Player B") {trial.TestPhaseTrial.insertstimulustime(shape.BorderBottomB, 0);
+trial.TestPhaseTrial.insertstimulustime(shape.BorderTopB, 0); trial.TestPhaseTrial.insertstimulustime(shape.BorderLeftB, 0); 
+trial.TestPhaseTrial.insertstimulustime(shape.BorderRightB, 0); trial.TestPhaseTrial.insertstimulustime(picture.PlayerA, 0); 
+trial.TestPhaseTrial.insertstimulustime(picture.PlayerB, 0); trial.TestPhaseTrial.insertstimulustime(picture.NoShock, 0); 
+trial.TestPhaseTrial.insertstimulustime(video.SoundWave, values.TestPhaseSelectionFeedbackOffset); 
+trial.TestPhaseTrial.insertstimulustime(text.Intensity, values.TestPhaseSelectionFeedbackOffset); values.HorizontalPosition = 80}
+else if (list.TestPhaseOutcomes.currentvalue == "No Shock") {trial.TestPhaseTrial.insertstimulustime(shape.BorderBottomNone, 0);
+trial.TestPhaseTrial.insertstimulustime(shape.BorderTopNone, 0); trial.TestPhaseTrial.insertstimulustime(shape.BorderLeftNone, 0); 
+trial.TestPhaseTrial.insertstimulustime(shape.BorderRightNone, 0); trial.TestPhaseTrial.insertstimulustime(picture.PlayerA, 0); 
+trial.TestPhaseTrial.insertstimulustime(picture.PlayerB, 0); trial.TestPhaseTrial.insertstimulustime(picture.NoShock, 0); 
+values.HorizontalPosition = 50}]
+/ ontrialbegin = [trial.TestPhaseTrial.insertstimulustime(text.TestTrialMarker, 0)]
+/ timeout = values.ToneFeedbackLength + values.TestPhaseSelectionFeedbackOffset
+/ branch = [trial.AMP]
+/ recorddata = false
+/ ontrialend = [values.LatencyPrecedingResponse = trial.TestPhaseTrialFlickerFast.latency; values.PrecedingTrial = "Test Trial"]
+/ ontrialend = [values.LowestSwitchTime = 1000]
+/ ontrialend = [trial.TestPhaseTrialFlickerFast.resetstimulusframes()]
+</trial>
+
+<text TestTrialMarker>
+/ items = ("<%script.currenttrial%>")
+/ fontstyle = ("Verdana", 2%, true)
+/ size = (90%,10%)
+/ vjustify = center 
+/ position = (50,75)
+</text>
+
+
+<list TestPhaseOutcomes>
+/ items = ("Player A", "Player B", "No Shock")
+/ poolsize = values.TestTrialsTotalPerBlock - values.CatchTrialsPerTestBlock
+/ itemprobabilities = (1/3,1/3,1/3)
+/ selectionrate = trial
+</list>
+
+<trial TestPhaseCatchTrialPrep>
+/ trialduration = 0
+/ ontrialbegin = [if (values.i == 0) values.i = 1]
+/ ontrialbegin = [{values.TestTime += list.SwitchTimings.item(values.i)}]
+/ branch = [if (trial.TestPhaseTrialFlickerSlow.latency < values.TestTime && values.i == 1) {values.SelectedSide = values.StartingSide; 
+values.i = 0; values.TestTime = 0; trial.TestPhaseCatchTrial}]
+/ branch = [if (trial.TestPhaseTrialFlickerSlow.latency < values.TestTime) {values.SelectedSide = list.CurrentPositions.item(values.i-1); 
+values.i = 0; values.TestTime = 0; trial.TestPhaseCatchTrial}]
+/ branch = [values.i += 1; trial.TestPhaseCatchTrialPrep]
+/ recorddata = false
+</trial>
+
+<text debug2>
+/ items = ("<%values.i%>
+<%trial.TestPhaseTrialFlickerSlow.latency%>
+<%values.TestTime%>
+<%list.CurrentPositions.item(values.i-1)%>")
+/ fontstyle = ("Verdana", 2%, true)
+/ size = (90%,10%)
+/ vjustify = center 
+/ txcolor = red
+</text>
+
+<trial TestPhaseCatchTrial>
+/ ontrialbegin = [values.TrialCounter += 1; values.TimeoutCounter = 0]
+/ ontrialbegin = [trial.TestPhaseCatchTrial.removestimulustime(0); trial.TestPhaseCatchTrial.removestimulustime(values.TestPhaseSelectionFeedbackOffset)]
+/ ontrialbegin = [if (values.SelectedSide == "A") 
+{trial.TestPhaseCatchTrial.insertstimulustime(shape.BorderBottomA, 0); trial.TestPhaseCatchTrial.insertstimulustime(shape.BorderTopA, 0); 
+trial.TestPhaseCatchTrial.insertstimulustime(shape.BorderLeftA, 0); trial.TestPhaseCatchTrial.insertstimulustime(shape.BorderRightA, 0); 
+trial.TestPhaseCatchTrial.insertstimulustime(picture.PlayerA, 0); trial.TestPhaseCatchTrial.insertstimulustime(picture.PlayerB, 0); 
+trial.TestPhaseCatchTrial.insertstimulustime(video.SoundWave, values.TestPhaseSelectionFeedbackOffset); 
+trial.TestPhaseCatchTrial.insertstimulustime(text.Intensity, values.TestPhaseSelectionFeedbackOffset); values.HorizontalPosition = 20}
+else if (values.SelectedSide == "B")
+{trial.TestPhaseCatchTrial.insertstimulustime(shape.BorderBottomB, 0); trial.TestPhaseCatchTrial.insertstimulustime(shape.BorderTopB, 0); 
+trial.TestPhaseCatchTrial.insertstimulustime(shape.BorderLeftB, 0); trial.TestPhaseCatchTrial.insertstimulustime(shape.BorderRightB, 0); 
+trial.TestPhaseCatchTrial.insertstimulustime(picture.PlayerA, 0); trial.TestPhaseCatchTrial.insertstimulustime(picture.PlayerB, 0); 
+trial.TestPhaseCatchTrial.insertstimulustime(video.SoundWave, values.TestPhaseSelectionFeedbackOffset); 
+trial.TestPhaseCatchTrial.insertstimulustime(text.Intensity, values.TestPhaseSelectionFeedbackOffset); values.HorizontalPosition = 80}
+else if (values.SelectedSide == "None")
+{trial.TestPhaseCatchTrial.insertstimulustime(shape.BorderBottomNone, 0);
+trial.TestPhaseCatchTrial.insertstimulustime(shape.BorderTopNone, 0); trial.TestPhaseCatchTrial.insertstimulustime(shape.BorderLeftNone, 0); 
+trial.TestPhaseCatchTrial.insertstimulustime(shape.BorderRightNone, 0); trial.TestPhaseCatchTrial.insertstimulustime(picture.PlayerA, 0); 
+trial.TestPhaseCatchTrial.insertstimulustime(picture.PlayerB, 0); 
+values.HorizontalPosition = 50}]
+/ ontrialbegin = [trial.TestPhaseCatchTrial.insertstimulustime(text.TestTrialMarker, 0)]
+/ ontrialbegin = [if (values.HorizontalPosition == 20 && values.AggressivePlayer == "Player A") values.SelectedPlayer = "Aggressive Player"
+else if (values.HorizontalPosition == 20 && values.NonaggressivePlayer == "Player A") values.SelectedPlayer = "Nonaggressive Player"
+else if (values.HorizontalPosition == 80 && values.AggressivePlayer == "Player B") values.SelectedPlayer = "Aggressive Player"
+else if (values.HorizontalPosition == 80 && values.NonaggressivePlayer == "Player B") values.SelectedPlayer = "Nonaggressive Player"
+else if (values.HorizontalPosition == 50) values.SelectedPlayer = "None"]
+/ timeout = values.ToneFeedbackLength + values.TestPhaseSelectionFeedbackOffset
+/ branch = [trial.AMP]
+/ recorddata = false
+/ ontrialend = [values.LatencyPrecedingResponse = trial.TestPhaseTrialFlickerSlow.latency; values.PrecedingTrial = "Catch Trial"]
+/ ontrialend = [values.i = 0]
+/ ontrialend = [trial.TestPhaseTrialFlickerSlow.resetstimulusframes()]
+</trial>
+
+
+<trial TestPhaseTooSlow>
+/ ontrialbegin = [values.NumPrecedingTimeouts += 1]
+/ stimulustimes = [0 = FasterPlease]
+/ timeout = values.TestPhaseErrorFeedbackDuration
+/ recorddata = false
+/ branch = [if (values.LastTestTrial == "Slow") trial.TestPhaseTrialFlickerSlow
+else if (values.LastTestTrial == "Fast") trial.TestPhaseTrialFlickerFast]
+</trial>
+
+<text FasterPlease>
+/ items = ("Bitte treffe schneller deine Entscheidung!!!")
+/ fontstyle = ("Verdana", 2%, true)
+/ size = (90%,10%)
+/ vjustify = center 
+/ txcolor = red
+</text>
+
+<list AcquisitionBlock1>
+/ items = ("Aggressive Player", "Nonaggressive Player", "Participant", "Participant", "Participant", "Participant")
+</list>
+
+<list AcquisitionBlock2>
+/ items = ("Aggressive Player", "Aggressive Player", "Aggressive Player", "Aggressive Player", "Nonaggressive Player", "Participant")
+</list>
+
+<list AcquisitionBlock3>
+/ items = ("Aggressive Player", "Aggressive Player", "Nonaggressive Player", "Participant", "Participant", "Participant")
+</list>
+
+<list AcquisitionBlock4>
+/ items = ("Aggressive Player", "Aggressive Player", "Aggressive Player", "Nonaggressive Player", "Nonaggressive Player", "Participant")
+</list>
+
+<list AcquisitionBlock5>
+/ items = ("Aggressive Player", "Aggressive Player", "Nonaggressive Player", "Nonaggressive Player", "Participant", "Participant")
+</list>
+
+<list AcquisitionBlock6>
+/ items = ("Nonaggressive Player", "Nonaggressive Player", "Nonaggressive Player", "Nonaggressive Player", "Nonaggressive Player", "Participant")
+</list>
+
+<list AcquisitionMaster>
+/ items = (1,2)
+/ itemprobabilities = (24/values.AcquisitionTrialsPerBlock,6/values.AcquisitionTrialsPerBlock)
+/ poolsize = values.AcquisitionTrialsPerBlock
+</list>
+
+<list AcquisitionMain>
+/ items = ("Aggressive Player", "Nonaggressive Player", "Participant")
+/ itemprobabilities = (1/3,1/3,1/3)
+/ poolsize = 24
+</list>
+
+<list ListChooser>
+/ items = (1,2,3,4,5,6)
+/ selectionrate = block
+</list>
+
+<list AggrPlayerHits1>
+/ items = ("Participant","Nonaggressive Player")
+/ itemprobabilities = (6/9,3/9)
+/ poolsize = 9
+</list>
+<list AggrPlayerHits2>
+/ items = ("Participant","Nonaggressive Player")
+/ itemprobabilities = (8/12,4/12)
+/ poolsize = 12
+</list>
+<list AggrPlayerHits3>
+/ items = ("Participant","Nonaggressive Player")
+/ itemprobabilities = (8/10,2/10)
+/ poolsize = 10
+</list>
+<list AggrPlayerHits4>
+/ items = ("Participant","Nonaggressive Player")
+/ itemprobabilities = (8/11,3/11)
+/ poolsize = 11
+</list>
+<list AggrPlayerHits5>
+/ items = ("Participant","Nonaggressive Player")
+/ itemprobabilities = (7/10,3/10)
+/ poolsize = 10
+</list>
+<list AggrPlayerHits6>
+/ items = ("Participant","Nonaggressive Player")
+/ itemprobabilities = (8/8,0/8)
+/ poolsize = 8
+</list>
+
+
+<list NonAggrPlayerHits1>
+/ items = ("Participant","Aggressive Player")
+/ itemprobabilities = (4/9,5/9)
+/ poolsize = 9
+</list>
+<list NonAggrPlayerHits2>
+/ items = ("Participant","Aggressive Player")
+/ itemprobabilities = (5/9,4/9)
+/ poolsize = 9
+</list>
+<list NonAggrPlayerHits3>
+/ items = ("Participant","Aggressive Player")
+/ itemprobabilities = (5/9,4/9)
+/ poolsize = 9
+</list>
+<list NonAggrPlayerHits4>
+/ items = ("Participant","Aggressive Player")
+/ itemprobabilities = (5/10,5/10)
+/ poolsize = 10
+</list>
+<list NonAggrPlayerHits5>
+/ items = ("Participant","Aggressive Player")
+/ itemprobabilities = (5/10,5/10)
+/ poolsize = 10
+</list>
+<list NonAggrPlayerHits6>
+/ items = ("Participant","Aggressive Player")
+/ itemprobabilities = (6/13,7/13)
+/ poolsize = 13
+</list>
+
+<block ARESK>
+/ onblockbegin = [values.TrialCounter = 0]
+/ preinstructions = (ARESK1)
+/ trials = [1-34 = AresK; 35 = Debrief]
+</block>
+
+<page ARESK1>
+^^Im Folgenden findest du 34 Aussagen, mit denen Personen sich selbst beschreiben könnten (z.B. "Ich bin ein fröhlicher Mensch"). Bitte gebe zu diesen Aussagen jeweils an, wie stark diese für dich persönlich im Allgemeinen zutreffen - möglichst unabhängig von deiner jetzigen Stimmung oder Laune. Es stehen dir hierfür vier Antwortmöglichkeiten zur Verfügung:
+^^1 = "stimmt nicht" ‚ 2= "stimmt eher nicht"; 3 = "stimmt eher " 4 = "stimmt"
+^^Wähle zu jeder Aussage die Antwort, die für dich am besten paßt. Es geht darum, wie du dich persönlich einschätzt, es gibt keine "richtigen" oder "falschen" Antworten.
+^^Bei den verschiedenen Aussagen geht es oft darum, wie oft oder stark du bestimmte Gefühle empfindest (z.B. "Ich werde schnell ärgerlich"). Es geht nicht darum, ob oder wie du diese Gefühle anderen zeigst, sondern darum, wie du dich selbst fühlst.
+^^Häufig sind in den Aussagen allgemeine Situationen beschrieben (z.B. "Wenn ich kritisiert werde..."). Wenn dir diese Beschreibungen zu allgemein sind, versuche bitte, dir dazu konkrete alltägliche Situationen vorzustellen, die du persönlich schon einmal erlebt hast.
+^^Lese jede Aussage gründlich und klicke dann, inwieweit die Aussage auf dich persönlich zutrifft. Antworte zu jeder Aussage, als ob es die einzige wäre, auch wenn vorhergehende Aussagen ähnlich waren. Bitte klicke zu jeder Aussage eine Antwort an - wenn dir keine der Möglichkeiten passend erscheint, wähle bitte diejenige, die noch am ehesten passt.
+</page>
+
+<instruct>
+/ finishlabel = "Los geht es mit der LEERTASTE."
+/ fontstyle = ("Verdana", 2%, false, false, false, false, 5, 1)
+/ lastlabel = "Los geht es mit der LEERTASTE."
+/ nextkey = (" ")
+/ windowsize = (90%,90%)
+</instruct>
+
+
+<likert AresK>
+/ ontrialbegin = [values.TrialCounter += 1]
+/ numpoints = 4
+/ anchors = [1="stimmt nicht"; 2="stimmt eher nicht";3="stimmt eher";4="stimmt"]
+/ mouse = true
+/ showmousecursor = true
+/ stimulustimes = [0 = AresKItems]
+/ position = (50,60)
+/ ontrialend = [if (text.AresKItems.currentindex < 11) values.Subscale = "BIS II - Traurigkeit"
+else if (text.AresKItems.currentindex < 25) values.Subscale = "Ärger"
+else values.Subscale = "BAS II - Freude über Erfolg"]
+/ ontrialend = [if (text.AresKItems.currentindex == 15 || text.AresKItems.currentindex == 22 || text.AresKItems.currentindex == 30 || text.AresKItems.currentindex == 32) 
+values.InvertedItem = 1
+else values.InvertedItem = 0]
+</likert>
+
+<text AresKItems>
+/ fontstyle = ("Verdana", 2.5%, false, false, false, false, 5, 1)
+/ position = (50,40)
+/ items = AresKItems
+</text>
+
+<item AresKItems>
+/1 = "Es deprimiert mich, wenn ich ein angestrebtes Ziel nicht erreiche."
+/2 = "Ich fühle mich unglücklich, wenn etwas schlechter läuft, als ich gedacht habe."
+/3 = "Auch kleine Misserfolge enttäuschen mich stark."
+/4 = "Wenn etwas nicht ganz so klappt, wie ich wollte, bin ich schnell enttäuscht."
+/5 = "Auch kleine alltägliche Missgeschicke können mich ganz schön frustrieren."
+/6 = "Ich kann richtig traurig werden, wenn etwas nicht so klappt, wie ich es wollte."
+/7 = "Wenn ich etwas verliere, das mir wichtig war, werde ich schnell sehr niedergeschlagen."
+/8 = "Ich werde schnell traurig, wenn ich etwas Erhofftes nicht erreiche."
+/9 = "Wenn etwas nicht so gut läuft, wie ich gehofft hatte, bin ich schnell frustriert."
+/10 = "Wenn ich ein erhofftes Ziel nicht erreiche, bin ich schnell frustriert."
+/11 = "Manchmal können mich schon unbedeutende Unannehmlichkeiten richtig verärgern."
+/12 = "Wenn ich etwas, das mir wichtig ist, nicht erreichen kann, werde ich schnell gereizt."
+/13 = "Ich werde schnell ärgerlich, wenn mich jemand kritisiert."
+/14 = "Ich kann ganz schön ärgerlich werden, wenn sich Menschen anders verhalten, als mir das recht ist."
+/15 = "Es braucht schon einiges, bis ich wirklich ärgerlich werde."
+/16 = "Wenn mir jemand bei etwas Wichtigem in die Quere kommt, werde ich wütend."
+/17 = "Wenn jemand etwas an mir auszusetzen hat, kann mich das in Rage bringen."
+/18 = "Auf Hindernisse bei alltäglichen Tätigkeiten reagiere ich gereizt."
+/19 = "Ich kann mich auch über kleine Ärgernisse schnell aufregen."
+/20 = "Wenn ich an etwas Wichtigem gehindert werde, kann ich sehr zornig werden."
+/21 = "Wenn sich mir Hindernisse in den Weg stellen, ärgert mich das sehr."
+/22 = "Wenn mir jemand Schwierigkeiten bereitet, dauert es eine ganze Weile, bis ich wirklich ärgerlich werde."
+/23 = "Es fuchst mich wirklich, wenn etwas nicht so funktioniert, wie ich will."
+/24 = "Wenn etwas nicht so läuft, wie ich es geplant hatte, werde ich ärgerlich."
+/25 = "Wenn ich etwas bekomme, das ich wollte, kann ich mich intensiv freuen."
+/26 = "Ich bin schnell zu erfreuen."
+/27 = "Ich kann mich auch über kleine Erfolge richtig freuen."
+/28 = "Ich bin oft ohne wirklichen Grund richtig fröhlich."
+/29 = "Ich werde auch aus geringfügigen Anlässen richtig fröhlich."
+/30 = "Es ist selten, dass ich mich über etwas richtig freuen kann."
+/31 = "Wenn mir etwas so gelingt, wie ich es geplant hatte, macht mir das große Freude."
+/32 = "Auch wenn ich etwas bekomme, das ich wirklich haben wollte, freue ich mich selten."
+/33 = "Es macht mich sehr glücklich, wenn ich ein angestrebtes Ziel erreiche."
+/34 = "Es gibt täglich Dinge, über die ich mich sehr freue."
+</item>
+
+
+<trial Debrief>
+/ ontrialbegin = [values.Subscale = ""; values.InvertedItem = ""]
+/ stimulustimes = [0 = Debrief]
+/ validresponse = (" ")
+/ recorddata = false
+/ beginresponsetime = values.MinimumInstructionReadTime
+/ skip = [values.WantDebriefing != 1]
+</trial>
+
+<text Debrief>
+/ items = ("Im vorangegangenen Experiment wurde dir gesagt, dass du gegen andere Menschen spielst, die im anderen Raum sitzen. Dies war eine Täuschung. In Wirklichkeit waren die Aufteilungen der siegreichen Durchgänge ebenso wie die Ziele der vermeintlichen anderen Mitspieler durch die leitenden Forscher vorbestimmt; es gab keine andere Person. Du hast demnach keiner Person unangenehme Geräusche geschickt.
+
+Diese Täuschung war im Rahmen der aktuellen Forschung leider notwendig, um eine im Sinne der Forschungsfrage kontrollierbare Umgebung herzustellen. Nur so konnten wir unserer Forschungsfrage zum affektiven Zustand nach aggressivem Verhalten nachgehen.
+
+Wir entschuldigen uns für die Täuschung und verweisen dich bei weiteren Fragen an die Versuchsleitung.
+
+Es ist auch wichtig, dass wir noch einmal betonen, dass NICHT jede psychologische Studie Täuschung beinhaltet. Es gibt durchaus Experimente, in denen man real mit anderen Menschen kooperiert oder konkurriert. Es sollte also nicht von dieser Untersuchung auf zukünftige Studien geschlossen werden.
+
+Vielen Dank für die Teilnahme.
+
+Beenden mit der LEERTASTE.")
+/ fontstyle = ("Verdana", 2%)
+/ size = (90%,40%)
+/ position = (50,50)
+/ halign = center
+/ vjustify = center
+</text>
+
+
+data>
+/ file = "Testdata.iqdat"
+/ columns = (subject, time, blockcode, trialcode, values.SelectedSide, values.AggressivePlayer)
+</data>
+
+
+<data>
+/ file = "AggressionAffectiveConsequences4.iqdat"
+/ columns = (subject,date,time,blockcode,values.BlockCounter,trialcode,values.TrialCounter,response,latency,correct,values.AggressivePlayer,values.NonaggressivePlayer,
+values.PicturePositions,values.AMPKeyAssignment,values.ListNumber,values.SelectedPlayer,values.TaylorWinner,values.TaylorTarget,values.ChosenIntensity,
+values.LatencyPrecedingResponse,values.NumPrecedingTimeouts,values.PrecedingTrial,stimulusitem,values.Subscale,values.InvertedItem)
+</data>
+
+/ file = "D:\VersucheData\Anand\AnKr.2019.AggrConsequences3\AggressionAffectiveConsequences3.iqdat"
+
